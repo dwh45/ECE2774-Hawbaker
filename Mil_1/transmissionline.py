@@ -1,5 +1,5 @@
 # Name: Daniel Hawbaker
-# Last Edited: 27 FEB 2024
+# Last Edited: 29 FEB 2024
 # Project: transmission line for milestone 1
 # Class: ECE 2774
 
@@ -32,11 +32,11 @@ class tline:
 
     def calc_RXB(self):
         self.conductor.calc_params()
-        self.Line_R = self.conductor.Rp*self.length
-        self.Line_X = self.conductor.Xp*self.length
-        self.Line_B = self.conductor.Bp*self.length
-        self.Line_Z = self.Line_R + 1j*self.Line_X
-        self.Line_Y = 1/self.Line_Z
+        self.Line_R = self.conductor.Rp*self.length #Line resistance
+        self.Line_X = self.conductor.Xp*self.length #Line reactance
+        self.Line_B = self.conductor.Bp*self.length #Shunt admittance
+        self.Line_Z = self.Line_R + 1j*self.Line_X #Line impedance
+        self.Line_Y = 1/self.Line_Z #Line admittance
 
     def y_matrix(self):
         ytmat = np.array([[self.Line_Y + self.Line_B/2, -self.Line_Y],[-self.Line_Y, self.Line_Y + self.Line_B/2]])

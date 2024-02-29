@@ -1,5 +1,5 @@
 # Name: Daniel Hawbaker
-# Last Edited: 27 FEB 2024
+# Last Edited: 29 FEB 2024
 # Project: transformer for milestone 1
 # Class: ECE 2774
 
@@ -30,7 +30,8 @@ class Tx:
         print(self.name, 'XFMR Y Matrix')
         print(ymat)
 
-if __name__ == '__main__':
-    T1=Tx('A',10, .085, 230, 20, 125, 1, 2)
-    T1.calc_admittance()
-    T1.y_matrix()
+#Testing below
+#if __name__ == '__main__':
+#    T1=Tx('A',10, .085, 230, 20, 125, 1, 2)
+#    T1.calc_admittance()
+#    T1.y_matrix()

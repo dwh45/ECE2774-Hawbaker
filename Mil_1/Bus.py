@@ -1,5 +1,5 @@
 # Name: Daniel Hawbaker
-# Last Edited: 27 FEB 2024
+# Last Edited: 29 FEB 2024
 # Project: Milestone 1
 # Class: ECE 2774
 #can create a counter. Every time you create this class increment the counter by 1.
@@ -7,8 +7,8 @@
 
 class bus:
     numbus = 0
-    def __init__(self, name, voltage, bus_number):
+    def __init__(self, name, voltage):
         self.name = name
         self.voltage = voltage
-        self.bus_number= bus_number
+        self.bus_number = bus.numbus
         bus.numbus+=1
