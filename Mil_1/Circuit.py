@@ -23,7 +23,7 @@ class circuit:
         self.xmfr: Dict[str, Tx] = dict() #brings in transformer names
         self.geometries: Dict[str, geometry] = dict()
         self.conductors: Dict[str, conductor] = dict()
-        self.Tline: Dict[str, tline] = dict()
+        self.Tlines: Dict[str, tline] = dict()
 
     def add_bus_element(self, name: str, voltage):
         if self.name not in self.buses.keys():
@@ -39,11 +39,11 @@ class circuit:
     def add_conductor_element(self, name: str, GMR, spacing, Rc, bundles, diameter, geometries_name: str):
         self.conductors[name] = conductor(name, GMR, spacing, Rc, bundles, diameter, self.geometries[geometries_name])
     def add_transmissionline_element(self, name: str, busA: str, busB: str, length: float, conductor_name: str):
-        self.Tline[name] = tline(name, self.buses[busA], self.buses[busB], length, self.conductors[conductor_name])
+        self.Tlines[name] = tline(name, self.buses[busA], self.buses[busB], length, self.conductors[conductor_name])
 
     def make_ybus(self):
         size = np.zeros([len(self.buses), len(self.buses)])
-        self.YBus = pd.DataFrame(data=size, index=self.bus_order, columns=self.buses, dtype=complex)
+        self.YBus = pd.DataFrame(data=size, index=self.bus_order, columns=self.bus_order, dtype=complex)
 
         for A in self.xmfr.keys():
             self.YBus.loc[self.xmfr[A].busA.name, self.xmfr[A].busA.name] += (self.xmfr[A].yprim.loc)[self.xmfr[A].busA.name, self.xmfr[A].busA.name]
@@ -51,11 +51,11 @@ class circuit:
             self.YBus.loc[self.xmfr[A].busA.name, self.xmfr[A].busB.name] += (self.xmfr[A].yprim.loc)[self.xmfr[A].busA.name, self.xmfr[A].busB.name]
             self.YBus.loc[self.xmfr[A].busB.name, self.xmfr[A].busA.name] += (self.xmfr[A].yprim.loc)[self.xmfr[A].busB.name, self.xmfr[A].busA.name]
 
-        for A in self.Tline.keys():
-            self.YBus.loc[self.Tline[A].busA.name, self.Tline[A].busA.name] += (self.Tline[A].yprim.loc)[self.Tline[A].busA.name, self.Tline[A].busA.name]
-            self.YBus.loc[self.Tline[A].busB.name, self.Tline[A].busB.name] += (self.Tline[A].yprim.loc)[self.Tline[A].busB.name, self.Tline[A].busB.name]
-            self.YBus.loc[self.Tline[A].busA.name, self.Tline[A].busB.name] += (self.Tline[A].yprim.loc)[self.Tline[A].busA.name, self.Tline[A].busB.name]
-            self.YBus.loc[self.Tline[A].busB.name, self.Tline[A].busA.name] += (self.Tline[A].yprim.loc)[self.Tline[A].busB.name, self.Tline[A].busA.name]
+        for A in self.Tlines.keys():
+            self.YBus.loc[self.Tlines[A].busA.name, self.Tlines[A].busA.name] += (self.Tlines[A].yprim.loc)[self.Tlines[A].busA.name, self.Tlines[A].busA.name]
+            self.YBus.loc[self.Tlines[A].busB.name, self.Tlines[A].busB.name] += (self.Tlines[A].yprim.loc)[self.Tlines[A].busB.name, self.Tlines[A].busB.name]
+            self.YBus.loc[self.Tlines[A].busA.name, self.Tlines[A].busB.name] += (self.Tlines[A].yprim.loc)[self.Tlines[A].busA.name, self.Tlines[A].busB.name]
+            self.YBus.loc[self.Tlines[A].busB.name, self.Tlines[A].busA.name] += (self.Tlines[A].yprim.loc)[self.Tlines[A].busB.name, self.Tlines[A].busA.name]
 
         return self.YBus
     #in main. Use sevenbus = circuit('') creates the circuit

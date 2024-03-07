@@ -21,8 +21,8 @@ class Tx:
 
         self.ztx: complex
         self.ytx: complex
-
-        self.yprim = pd.DataFrame(np.zeros([2,2], dtype = complex), dtype = complex, index=[self.busA.name, self.busB.name], columns=[self.busA.name, self.busB.name])
+        self.calc_admittance()
+        self.y_matrix()
 
     def calc_admittance (self):
        # zpuold = (self.z_percent / 100) * (np.exp(1j*np.arctan(self.xr_ratio)))
@@ -34,6 +34,7 @@ class Tx:
         self.Y = 1/self.Z
 
     def y_matrix(self):
+        self.yprim = pd.DataFrame(np.zeros([2, 2], dtype=complex), dtype=complex, index=[self.busA.name, self.busB.name], columns=[self.busA.name, self.busB.name])
         self.yprim.loc[self.busA.name, self.busA.name] = self.yprim.loc[self.busB.name, self.busB.name] = self.Y
         self.yprim.loc[self.busA.name, self.busB.name] = self.yprim.loc[self.busB.name, self.busA.name] = -self.Y
         #ymat = np.array([[self.Y, -self.Y],[-self.Y, self.Y]])
@@ -42,7 +43,7 @@ class Tx:
 
 #Testing below
 #if __name__ == '__main__':
-#    T1=Tx('A',10, .085, 230, 20, 125, 1, 2)
+#    T1=Tx('A',10, .085, 230, "Bus 1", "Bus 2")
 #    T1.calc_admittance()
 #    T1.y_matrix()
 

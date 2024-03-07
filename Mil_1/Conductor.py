@@ -15,7 +15,7 @@ class conductor:
         self.n = bundles
         self.r = 0.5*diameter/12
         self.geo = geo
-
+        self.calc_params()
     def calc_params(self):
 
         if self.n == 1:

@@ -34,3 +34,4 @@ SevenBus.add_transmissionline_element("L5", "Bus 5", "Bus 6", 10, "partridge")
 SevenBus.add_transmissionline_element("L6", "Bus 4", "Bus 5", 35, "partridge")
 
 SevenBus.make_ybus()
+print(SevenBus.make_ybus())

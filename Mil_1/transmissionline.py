@@ -15,21 +15,16 @@ from settings import s
 #        self.x1 = x1
 
 class tline:
-    def __init__(self,
-                 name: str,
-                 busA: bus,
-                 busB: bus,
-                 length: float,
-                 conductor: conductor
-                 #line_code: TLineCode
-                 ):
+    def __init__(self, name: str, busA: bus, busB: bus, length: float, conductor: conductor):
         self.name = name
         self.busA = busA
         self.busB = busB
         self.length = length
         self.conductor = conductor
 
-        self.yprim = pd.DataFrame(np.zeros([2, 2], dtype=complex), dtype=complex, index=[self.busA.name, self.busB.name], columns=[self.busA.name, self.busB.name])
+        self.calc_RXB()
+        self.y_matrix()
+        #self.yprim = pd.DataFrame(np.zeros([2, 2], dtype=complex), dtype=complex, index=[self.busA.name, self.busB.name], columns=[self.busA.name, self.busB.name])
         #self.line_code = line_code #Tline has a tline code, illustrating aggregation
 
         #self.r1: float
@@ -47,9 +42,9 @@ class tline:
         self.Line_Y = 1/self.Line_Z #Line admittance
 
     def y_matrix(self):
-        self.yprim.loc[self.busA.name, self.busA.name] = self.yprim.loc[self.busB.name, self.busB.name] = (self.Line_Y + self.Line_B/2)
-        self.yprim.loc[self.busA.name, self.busB.name] = self.yprim.loc[self.busB.name, self.busA.name] = (-self.Line_Y)
-        return self.yprim
+        self.yprim = pd.DataFrame(np.zeros([2, 2], dtype=complex), dtype=complex, index=[self.busA.name, self.busB.name], columns=[self.busA.name, self.busB.name])
+        self.yprim.loc[self.busA.name, self.busA.name] = self.yprim.loc[self.busB.name, self.busB.name] = self.Line_Y + self.Line_B/2
+        self.yprim.loc[self.busA.name, self.busB.name] = self.yprim.loc[self.busB.name, self.busA.name] = -self.Line_Y
         #ytmat = np.array([[self.Line_Y + self.Line_B/2, -self.Line_Y],[-self.Line_Y, self.Line_Y + self.Line_B/2]])
         #print(self.name, 'TLine Y Matrix')
         #print(ytmat)
