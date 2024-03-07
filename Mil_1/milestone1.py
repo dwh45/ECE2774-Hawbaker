@@ -22,3 +22,10 @@ T1.calc_admittance()
 T1.y_matrix()
 print(bus.numbus)
 
+# in main. Use sevenbus = circuit('') creates the circuit
+# sevenbus.add_bus_element ("Bus2", 230)  adds a bus with the amount of KV
+
+# sevenbus.add_transformer_element("T1", "Bus 1", "Bus 2", 125, 8.5, 10)
+
+
+# in the main keep adding all the elements in this way Transformer, Conductor, Buses, etc.

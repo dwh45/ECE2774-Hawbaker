@@ -8,8 +8,9 @@ class settings:
 
             self._S_mva = 100
             self._f = 60
-            self.vbase = 20
-            self.zbase = self.vbase ** 2 / self._S_mva
+            #self.vbase = 20
+            #self.zbase = self.vbase ** 2 / self._S_mva
+            #zbase is not constant throughout the system. vbase and zbase will change based on the nominal bus voltage. 
         @property
         def s_mva(self):
             return self._S_mva

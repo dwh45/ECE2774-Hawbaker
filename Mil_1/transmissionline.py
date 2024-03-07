@@ -1,11 +1,14 @@
 # Name: Daniel Hawbaker
-# Last Edited: 29 FEB 2024
+# Last Edited: 7 MAR 2024
 # Project: transmission line for milestone 1
 # Class: ECE 2774
 
 #Lengths of transmission lines
 import numpy as np
 from Conductor import conductor
+import pandas as pd
+from Bus import bus
+from settings import s
 #class TLineCode:
 #    def __init__(self, r1, x1):
 #        self.r1 = r1
@@ -14,8 +17,8 @@ from Conductor import conductor
 class tline:
     def __init__(self,
                  name: str,
-                 busA: str,
-                 busB: str,
+                 busA: bus,
+                 busB: bus,
                  length: float,
                  conductor: conductor
                  #line_code: TLineCode
@@ -25,21 +28,30 @@ class tline:
         self.busB = busB
         self.length = length
         self.conductor = conductor
+
+        self.yprim = pd.DataFrame(np.zeros([2, 2], dtype=complex), dtype=complex, index=[self.busA.name, self.busB.name], columns=[self.busA.name, self.busB.name])
         #self.line_code = line_code #Tline has a tline code, illustrating aggregation
 
         #self.r1: float
         #self.x1: float
 
     def calc_RXB(self):
+        zbase = self.busA.voltage ** 2 / s.s_mva
+        ybase = 1 / zbase
         self.conductor.calc_params()
         self.Line_R = self.conductor.Rp*self.length #Line resistance
         self.Line_X = self.conductor.Xp*self.length #Line reactance
-        self.Line_B = self.conductor.Bp*self.length #Shunt admittance
-        self.Line_Z = self.Line_R + 1j*self.Line_X #Line impedance
+        self.Line_B = (self.conductor.Bp*self.length)/ybase #Shunt admittance
+
+        self.Line_Z = (self.Line_R + 1j*self.Line_X) / (self.busA.voltage **2 / s.s_mva) #Line impedance
         self.Line_Y = 1/self.Line_Z #Line admittance
 
     def y_matrix(self):
-        ytmat = np.array([[self.Line_Y + self.Line_B/2, -self.Line_Y],[-self.Line_Y, self.Line_Y + self.Line_B/2]])
-        print(self.name, 'TLine Y Matrix')
-        print(ytmat)
+        self.yprim.loc[self.busA.name, self.busA.name] = self.yprim.loc[self.busB.name, self.busB.name] = (self.Line_Y + self.Line_B/2)
+        self.yprim.loc[self.busA.name, self.busB.name] = self.yprim.loc[self.busB.name, self.busA.name] = (-self.Line_Y)
+        return self.yprim
+        #ytmat = np.array([[self.Line_Y + self.Line_B/2, -self.Line_Y],[-self.Line_Y, self.Line_Y + self.Line_B/2]])
+        #print(self.name, 'TLine Y Matrix')
+        #print(ytmat)
 
+#need to ensure values are in pu
