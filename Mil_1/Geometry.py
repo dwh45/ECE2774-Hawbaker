@@ -13,5 +13,5 @@ class geometry:
         self.Dbc = Dbc
         self.calc_deq()
     def calc_deq(self):
-        self.Deq = np.cbrt(self.Dab + self.Dbc + self.Dac)
+        self.Deq = np.cbrt(self.Dab * self.Dbc * self.Dac)
 

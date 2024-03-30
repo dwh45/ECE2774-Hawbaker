@@ -27,7 +27,7 @@ class Tx:
     def calc_admittance (self):
        # zpuold = (self.z_percent / 100) * (np.exp(1j*np.arctan(self.xr_ratio)))
         #zpusys = zpuold * ((self.low_voltage ** 2) / self.power_rating) / s.zbase
-        zpusys = self.z_percent * (np.exp(1j*np.arctan(self.xr_ratio))) * s.s_mva / self.power_rating
+        zpusys = self.z_percent * (np.exp(1j*np.arctan(self.xr_ratio))) * (s.s_mva / self.power_rating)
         self.R = np.real(zpusys)
         self.X = np.imag(zpusys)
         self.Z= self.R + 1j*self.X
