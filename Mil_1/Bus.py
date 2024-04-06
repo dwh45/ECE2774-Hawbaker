@@ -7,8 +7,12 @@
 
 class bus:
     numbus = 0
-    def __init__(self, name, voltage):
+    def __init__(self, name, voltage, bus_type, voltmag, angle):
         self.name = name
         self.voltage = voltage
+        self.bus_type = bus_type
+        self.voltmag = voltmag
+        self.angle = angle
         self.bus_number = bus.numbus
         bus.numbus+=1
+
