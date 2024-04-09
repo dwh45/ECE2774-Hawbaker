@@ -156,7 +156,7 @@ class circuit:
         self.powerINT[3] = self.load["load4"].realPWR
         self.powerINT[4] = self.load["load5"].realPWR
         self.powerINT[5] = self.load["load6"].realPWR
-        self.powerINT[6] = self.load["load7"].realPWR - self.generator["Gen 2"].realPWR
+        self.powerINT[6] = self.load["load7"].realPWR + self.generator["Gen 2"].realPWR
         self.powerINT[8] = self.load["load2"].reactPWR
         self.powerINT[9] = self.load["load3"].reactPWR
         self.powerINT[10] = self.load["load4"].reactPWR
@@ -164,34 +164,28 @@ class circuit:
         self.powerINT[12] = self.load["load6"].reactPWR
         self.powerINT[13] = self.load["load7"].reactPWR
         self.powerINT = self.powerINT/s.s_mva
-        self.counting = 0
         return self.powerINT
 
 
     def make_power_mismatch(self):
         PWR = np.zeros([len(self.buses), 1])
         QPWR = np.zeros([len(self.buses), 1])
-        #if self.counting != 0:
-         #   self.powerINT = self.powerINT - self.power
-        P = 0
-        Q = 0
         for k in range(0, bus.numbus):
             K = "Bus " + str(k+1)
+            P = 0
             for n in range(0, bus.numbus):
                 N = "Bus " + str(n+1)
-                p = np.abs(self.YBus.loc[K, N]) * self.buses[N].voltmag * np.cos(self.buses[K].angle - self.buses[N].angle - np.angle(self.YBus.loc[K,N]))
-                P = P + p
+                P += np.abs(self.YBus.loc[K,N]) * self.buses[N].voltmag * np.cos(self.buses[K].angle - self.buses[N].angle - np.angle(self.YBus.loc[K,N]))
             PWR[k] = self.buses[K].voltmag * P
         for k in range(0, bus.numbus):
             K = "Bus " + str(k+1)
+            Q = 0
             for n in range(0, bus.numbus):
                 N = "Bus " + str(n+1)
-                q = np.abs(self.YBus.loc[K,N]) * self.buses[N].voltmag * np.sin(self.buses[K].angle - self.buses[N].angle - np.angle(self.YBus.loc[K,N]))
-                Q = Q + q
+                Q += np.abs(self.YBus.loc[K,N]) * self.buses[N].voltmag * np.sin(self.buses[K].angle - self.buses[N].angle - np.angle(self.YBus.loc[K,N]))
             QPWR[k] = self.buses[K].voltmag * Q
         self.power = np.vstack((PWR, QPWR))
         self.mismatch = self.powerINT - self.power
-        self.counting+=1
 
         for z in range(len(self.mismatch)-1,-1,-1):
             if z > 6:
@@ -202,12 +196,15 @@ class circuit:
                 Z = "Bus " + str(z +1)
             if self.buses[Z].bus_type == "slack":
                 self.mismatch = np.delete(self.mismatch, z)
-                #self.mismatch = np.delete(self.mismatch, z)
         return self.mismatch
 
     def make_solution_vector(self):
         delta = np.zeros([1, len(self.buses)])
         V = np.ones([1, len(self.buses)])
+        for w in range(0, bus.numbus):
+            N = "Bus " + str(w+1)
+            delta[0,w] = self.buses[N].angle
+            V[0,w] = self.buses[N].voltmag
         self.Xvector = np.hstack((delta,V))
         for z in range(bus.numbus*2-1,-1,-1):
             if z > 6:
@@ -223,6 +220,21 @@ class circuit:
         self.Xvector = self.Xvector + deltaX
         return self.Xvector
 
+    def calc_current(self):
+        self.current = np.zeros([1, len(self.Tlines)])
+        for i in range(len(self.Tlines)):
+            I = "L" + str(i+1)
+            cur = np.abs((self.buses[self.Tlines[I].busA.name].voltmag * np.exp(1j*self.buses[self.Tlines[I].busA.name].angle) - self.buses[self.Tlines[I].busB.name].voltmag * np.exp(1j*self.buses[self.Tlines[I].busB.name].angle)) / (((self.Tlines[I].conductor.Rp + 1j*self.Tlines[I].conductor.Xp)*self.Tlines[I].length)/ (self.buses[self.Tlines[I].busA.name].voltage **2 / s.s_mva)))
+            self.current[0,i] = cur * s.s_mva / (np.sqrt(3)*.23)
+        return self.current
+
+    def calc_powerloss(self):
+        self.ploss = np.zeros([1, len(self.Tlines)])
+        for i in range(len(self.Tlines)):
+            I = "L" +str(i+1)
+            self.ploss[0,i] = self.current[0,i] ** 2 * (((self.Tlines[I].conductor.Rp + 1j*self.Tlines[I].conductor.Xp)*self.Tlines[I].length))
+        return self.ploss
+
     def solution(self):
 
         tolerance = 0.0001
@@ -232,10 +244,10 @@ class circuit:
                 for x in range(0, bus.numbus):
                     X = "Bus " + str(x + 1)
                     if self.buses[X].bus_type != "slack" and self.buses[X].bus_type != "PV":
-                        self.buses[X].voltmag = self.buses[X].voltmag - self.Xvector[x + bus.numbus - 2] +1
-                        self.buses[X].angle = self.buses[X].angle + np.rad2deg(self.Xvector[x - 1])
+                        self.buses[X].voltmag = self.Xvector[x + bus.numbus - 2]
+                        self.buses[X].angle = self.Xvector[x - 1]
                     elif self.buses[X].bus_type != "slack":
-                        self.buses[X].angle = self.buses[X].angle + np.rad2deg(self.Xvector[x - 1])
+                        self.buses[X].angle = self.Xvector[x - 1]
                         #self.buses[X].voltmag = self.buses[X].voltmag - np.abs(self.Xvector[x + bus.numbus -2])
                 if np.abs(self.mismatch[g]) <= tolerance:
                     counter += 1
@@ -243,10 +255,12 @@ class circuit:
                     solutionVect = pd.array(data=np.zeros(len(self.buses)*2))
                     a = 0
                     for k in self.buses:
-                        solutionVect[a] = np.rad2deg(self.buses[k].angle)
+                        solutionVect[a] = self.buses[k].angle
                         solutionVect[a + bus.numbus] = self.buses[k].voltmag
                         a+=1
                     print(solutionVect)
-                self.make_jacobian()
-                self.make_power_mismatch()
-                self.make_solution_vector()
+                    break
+            self.make_jacobian()
+            self.make_power_mismatch()
+            self.make_solution_vector()
+            self.calc_current()

@@ -36,10 +36,11 @@ class tline:
         self.conductor.calc_params()
         self.Line_R = self.conductor.Rp*self.length #Line resistance
         self.Line_X = self.conductor.Xp*self.length #Line reactance
-        self.Line_B = (self.conductor.Bp*self.length)/ybase #Shunt admittance
+        self.Line_B = 1j*(self.conductor.Bp*self.length)/ybase #Shunt admittance
 
         self.Line_Z = (self.Line_R + 1j*self.Line_X) / (self.busA.voltage **2 / s.s_mva) #Line impedance
         self.Line_Y = 1/self.Line_Z #Line admittance
+
 
     def y_matrix(self):
         self.yprim = pd.DataFrame(np.zeros([2, 2], dtype=complex), dtype=complex, index=[self.busA.name, self.busB.name], columns=[self.busA.name, self.busB.name])
