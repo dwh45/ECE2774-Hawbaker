@@ -1,6 +1,6 @@
 # Name: Daniel Hawbaker
-# Last Edited: 26 MAR 2024
-# Project: Milestone 3
+# Last Edited: 11 APR 2024
+# Project: Milestone 4
 # Class: ECE 2774
 
 from Circuit import circuit
@@ -44,13 +44,14 @@ SevenBus.add_generator_element("Gen 1", "Bus 1", 100, 0, 0.12)
 SevenBus.add_generator_element("Gen 2", "Bus 7", 200, 0, 0.14)
 
 SevenBus.make_ybus()
-SevenBus.make_jacobian()
-SevenBus.initialize_powerINT()
-SevenBus.make_power_mismatch()
-SevenBus.make_solution_vector()
+SevenBus.determine_fault(1, "Bus 3")
+#SevenBus.make_jacobian()
+#SevenBus.initialize_powerINT()
+#SevenBus.make_power_mismatch()
+#SevenBus.make_solution_vector()
 SevenBus.calc_current()
-SevenBus.calc_powerloss()
-#print(SevenBus.make_ybus())
-print(SevenBus.solution())
+#SevenBus.calc_powerloss()
+
+#print(SevenBus.solution())
 print(SevenBus.calc_current())
-print(SevenBus.calc_powerloss())
+#print(SevenBus.calc_powerloss())

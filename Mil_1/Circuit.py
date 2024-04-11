@@ -1,6 +1,6 @@
 # Name: Daniel Hawbaker
-# Last Edited: 04 APR 2024
-# Project: Milestone 3b
+# Last Edited: 11 APR 2024
+# Project: Milestone 4
 # Class: ECE 2774
 
 #circuit class to make user interface
@@ -49,8 +49,9 @@ class circuit:
     def add_load_element(self, name: str, realPWR: float, reactPWR: float, busA: str):
         self.load[name] = load(name, realPWR, reactPWR, self.buses[busA])
 
-    def add_generator_element(self, name: str, busA: str, realPWR: float, reactPWR: float):
-        self.generator[name] = generator(name, self.buses[busA], realPWR, reactPWR)
+    def add_generator_element(self, name: str, busA: str, realPWR: float, reactPWR: float, genZ: float):
+        self.generator[name] = generator(name, self.buses[busA], realPWR, reactPWR, genZ)
+
     def make_ybus(self):
         size = np.zeros([len(self.buses), len(self.buses)])
         self.YBus = pd.DataFrame(data=size, index=self.bus_order, columns=self.bus_order, dtype=complex)
@@ -69,6 +70,14 @@ class circuit:
 
         return self.YBus
 
+    def determine_fault(self, fault, busF: str):
+        self.busF = busF
+        if fault == 1:
+            for f in range(self.generator):
+                self.YBus.loc[self.generator[f].busA.name, self.generator[f].busA.name] += 1j*(self.generator[f].genZ)
+            ZBus = pd.DataFrame(np.linalg.inv(self.YBus.values), self.YBus.columns, self.YBus.index)
+            If = np.abs(self.buses[busF].voltmag / ZBus[self.buses[busF].bus_number, self.buses[busF].bus_number])
+            print("Pre-Fault Voltage", self.buses[busF].voltmag, "Fault Current", If)
     def make_jacobian(self):
         Jac1 = np.zeros([len(self.buses)-1, len(self.buses)-1]) #initializes J1 of jacobian as 6x6 array of 0's
         Jac2 = np.zeros([len(self.buses)-1, len(self.buses)-2]) #initializes J2 of jacobian as 5x6 array of 0's

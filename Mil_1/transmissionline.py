@@ -9,6 +9,7 @@ from Conductor import conductor
 import pandas as pd
 from Bus import bus
 from settings import s
+from Generator import generator
 #class TLineCode:
 #    def __init__(self, r1, x1):
 #        self.r1 = r1
@@ -42,10 +43,12 @@ class tline:
         self.Line_Y = 1/self.Line_Z #Line admittance
 
 
+
     def y_matrix(self):
         self.yprim = pd.DataFrame(np.zeros([2, 2], dtype=complex), dtype=complex, index=[self.busA.name, self.busB.name], columns=[self.busA.name, self.busB.name])
         self.yprim.loc[self.busA.name, self.busA.name] = self.yprim.loc[self.busB.name, self.busB.name] = self.Line_Y + self.Line_B/2
         self.yprim.loc[self.busA.name, self.busB.name] = self.yprim.loc[self.busB.name, self.busA.name] = -self.Line_Y
+
         #ytmat = np.array([[self.Line_Y + self.Line_B/2, -self.Line_Y],[-self.Line_Y, self.Line_Y + self.Line_B/2]])
         #print(self.name, 'TLine Y Matrix')
         #print(ytmat)
