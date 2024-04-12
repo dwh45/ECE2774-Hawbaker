@@ -1,5 +1,5 @@
 # Name: Daniel Hawbaker
-# Last Edited: 11 APR 2024
+# Last Edited: 12 APR 2024
 # Project: Milestone 4
 # Class: ECE 2774
 
@@ -70,14 +70,21 @@ class circuit:
 
         return self.YBus
 
-    def determine_fault(self, fault, busF: str):
+    def determine_fault(self, fault, busF: str): #user inputs a fault with a '1' and no fault with a '0'.
         self.busF = busF
         if fault == 1:
-            for f in range(self.generator):
-                self.YBus.loc[self.generator[f].busA.name, self.generator[f].busA.name] += 1j*(self.generator[f].genZ)
-            ZBus = pd.DataFrame(np.linalg.inv(self.YBus.values), self.YBus.columns, self.YBus.index)
-            If = np.abs(self.buses[busF].voltmag / ZBus[self.buses[busF].bus_number, self.buses[busF].bus_number])
-            print("Pre-Fault Voltage", self.buses[busF].voltmag, "Fault Current", If)
+            for f in range(len(self.generator)):
+                F = "Gen " +str(f+1)
+                self.YBus.loc[self.generator[F].busA.name, self.generator[F].busA.name] += 1j*(self.generator[F].genZ) #rebuilds YBus with the gen admittances
+            self.ZBus = pd.DataFrame(np.linalg.inv(self.YBus.values), self.YBus.columns, self.YBus.index) #Builds ZBus
+            If = np.abs(self.buses[busF].voltmag / self.ZBus.loc[self.buses[busF].name, self.buses[busF].name]) #solves for fault current
+            faultV = np.zeros([len(self.buses)])
+            for k in range(len(self.buses)):
+                K = "Bus " + str(k+1)
+                faultV[k] = self.buses[K].voltmag
+            faultVoltages = pd.DataFrame(faultV, index=self.bus_order)
+            print("Pre-Fault Voltages", faultVoltages)
+            print("Fault Current", If)
     def make_jacobian(self):
         Jac1 = np.zeros([len(self.buses)-1, len(self.buses)-1]) #initializes J1 of jacobian as 6x6 array of 0's
         Jac2 = np.zeros([len(self.buses)-1, len(self.buses)-2]) #initializes J2 of jacobian as 5x6 array of 0's
