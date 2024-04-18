@@ -78,11 +78,23 @@ class circuit:
                 self.YBus.loc[self.generator[F].busA.name, self.generator[F].busA.name] += 1j*(self.generator[F].genZ) #rebuilds YBus with the gen admittances
             self.ZBus = pd.DataFrame(np.linalg.inv(self.YBus.values), self.YBus.columns, self.YBus.index) #Builds ZBus
             If = np.abs(self.buses[busF].voltmag / self.ZBus.loc[self.buses[busF].name, self.buses[busF].name]) #solves for fault current
+            faultIf = np.zeros([len(self.buses)])
             faultV = np.zeros([len(self.buses)])
             for k in range(len(self.buses)):
                 K = "Bus " + str(k+1)
-                faultV[k] = self.buses[K].voltmag
-            faultVoltages = pd.DataFrame(faultV, index=self.bus_order)
+                if K == self.busF:
+                    faultV[k] = 1
+                    faultIf[k] = If
+            eV = np.linalg.solve(self.ZBus.values, faultIf)
+            print(eV)
+            faultVolt = pd.DataFrame(faultV, index=self.bus_order)
+            faultVoltages = np.zeros([len(self.buses)])
+            for k in range(len(self.buses)):
+                K = "Bus " + str(k+1)
+                if K == self.busF:
+                    faultVoltages[k] = 0
+                else:
+                    faultVoltages[k] = eV[k] - faultVolt.loc[busF]
             print("Pre-Fault Voltages", faultVoltages)
             print("Fault Current", If)
     def make_jacobian(self):
