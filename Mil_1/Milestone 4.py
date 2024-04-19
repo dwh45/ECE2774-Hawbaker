@@ -40,8 +40,8 @@ SevenBus.add_load_element("load5", -100, -65, "Bus 5")
 SevenBus.add_load_element("load6", 0, 0, "Bus 6")
 SevenBus.add_load_element("load7", 0, 0, "Bus 7")
 
-SevenBus.add_generator_element("Gen 1", "Bus 1", 100, 0, 0.12)
-SevenBus.add_generator_element("Gen 2", "Bus 7", 200, 0, 0.14)
+SevenBus.add_generator_element("Gen 1", "Bus 1", 100, 0, 0.12, 0.14, 0.05)
+SevenBus.add_generator_element("Gen 2", "Bus 7", 200, 0, 0.12, 0.14, 0.05)
 
 SevenBus.make_ybus()
 SevenBus.determine_fault(1, "Bus 3")

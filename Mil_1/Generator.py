@@ -6,9 +6,11 @@
 from Bus import bus
 
 class generator:
-    def __init__(self, name: str, busA: bus, realPWR: float, reactPWR: float, genZ: float):
+    def __init__(self, name: str, busA: bus, realPWR: float, reactPWR: float, genX1: float, genX2: float, genX0: float):
         self.name = name
         self.busA= busA
         self.realPWR = realPWR
         self.reactPWR = reactPWR
-        self.genZ = genZ
+        self.genX1 = genX1
+        self.genX1 = genX2
+        self.genX0 = genX0

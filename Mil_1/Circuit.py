@@ -49,8 +49,8 @@ class circuit:
     def add_load_element(self, name: str, realPWR: float, reactPWR: float, busA: str):
         self.load[name] = load(name, realPWR, reactPWR, self.buses[busA])
 
-    def add_generator_element(self, name: str, busA: str, realPWR: float, reactPWR: float, genZ: float):
-        self.generator[name] = generator(name, self.buses[busA], realPWR, reactPWR, genZ)
+    def add_generator_element(self, name: str, busA: str, realPWR: float, reactPWR: float, genX1: float, genX2: float, genX0: float):
+        self.generator[name] = generator(name, self.buses[busA], realPWR, reactPWR, genX1, genX2, genX0)
 
     def make_ybus(self):
         size = np.zeros([len(self.buses), len(self.buses)])
@@ -72,11 +72,12 @@ class circuit:
 
     def determine_fault(self, fault, busF: str): #user inputs a fault with a '1' and no fault with a '0'.
         self.busF = busF
+        self.BBus = self.YBus
         if fault == 1:
             for f in range(len(self.generator)):
                 F = "Gen " +str(f+1)
-                self.YBus.loc[self.generator[F].busA.name, self.generator[F].busA.name] += 1j*(self.generator[F].genZ) #rebuilds YBus with the gen admittances
-            self.ZBus = pd.DataFrame(np.linalg.inv(self.YBus.values), self.YBus.columns, self.YBus.index) #Builds ZBus
+                self.BBus.loc[self.generator[F].busA.name, self.generator[F].busA.name] += 1/(1j*self.generator[F].genX1) #rebuilds YBus with the gen admittances
+            self.ZBus = pd.DataFrame(np.linalg.inv(self.BBus.values), self.BBus.columns, self.BBus.index) #Builds ZBus
             If = np.abs(self.buses[busF].voltmag / self.ZBus.loc[self.buses[busF].name, self.buses[busF].name]) #solves for fault current
             faultIf = np.zeros([len(self.buses)])
             faultV = np.zeros([len(self.buses)])
